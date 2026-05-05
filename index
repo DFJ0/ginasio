@@ -1,0 +1,344 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); background: transparent; }
+
+.app { max-width: 380px; margin: 0 auto; padding: 0 0 80px; }
+
+.header { padding: 20px 16px 12px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.header h1 { font-size: 20px; font-weight: 500; color: var(--color-text-primary); letter-spacing: -0.3px; }
+.header p { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+
+.day-tabs { display: flex; gap: 6px; padding: 12px 16px; border-bottom: 0.5px solid var(--color-border-tertiary); overflow-x: auto; }
+.day-tabs::-webkit-scrollbar { display: none; }
+.day-btn { flex-shrink: 0; padding: 6px 14px; border-radius: 20px; border: 0.5px solid var(--color-border-secondary); font-size: 12px; font-weight: 500; background: transparent; color: var(--color-text-secondary); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.day-btn.active { background: var(--color-text-primary); color: var(--color-background-primary); border-color: var(--color-text-primary); }
+
+.session-bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: var(--color-background-secondary); border-bottom: 0.5px solid var(--color-border-tertiary); }
+.session-info { font-size: 12px; color: var(--color-text-secondary); }
+.session-info span { font-weight: 500; color: var(--color-text-primary); }
+.log-btn { padding: 6px 14px; background: var(--color-text-primary); color: var(--color-background-primary); border: none; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; }
+
+.muscle-group { margin: 0; }
+.group-header { padding: 10px 16px 6px; font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+
+.exercise-row { display: flex; align-items: center; padding: 12px 16px; border-bottom: 0.5px solid var(--color-border-tertiary); gap: 10px; }
+.exercise-info { flex: 1; min-width: 0; }
+.exercise-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.exercise-prev { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+.exercise-prev .change { margin-left: 4px; font-size: 10px; }
+.change.up { color: #3B6D11; }
+.change.down { color: #A32D2D; }
+.change.same { color: var(--color-text-secondary); }
+
+.weight-ctrl { display: flex; align-items: center; gap: 4px; }
+.w-btn { width: 28px; height: 28px; border-radius: 50%; border: 0.5px solid var(--color-border-secondary); background: transparent; font-size: 16px; color: var(--color-text-primary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 400; line-height: 1; transition: background 0.1s; }
+.w-btn:active { background: var(--color-background-secondary); }
+.weight-display { font-size: 13px; font-weight: 500; color: var(--color-text-primary); min-width: 38px; text-align: center; }
+.weight-unit { font-size: 10px; color: var(--color-text-secondary); }
+
+.done-btn { width: 28px; height: 28px; border-radius: 50%; border: 0.5px solid var(--color-border-secondary); background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; flex-shrink: 0; }
+.done-btn.done { background: var(--color-background-primary); border-color: #3B6D11; }
+.done-check { width: 12px; height: 12px; }
+
+.history-section { margin: 16px; background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+.history-title { padding: 10px 14px; font-size: 12px; font-weight: 500; color: var(--color-text-secondary); border-bottom: 0.5px solid var(--color-border-tertiary); }
+.hist-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 14px; border-bottom: 0.5px solid var(--color-border-tertiary); font-size: 12px; }
+.hist-row:last-child { border-bottom: none; }
+.hist-name { color: var(--color-text-secondary); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hist-weights { display: flex; gap: 12px; align-items: center; }
+.hist-w { color: var(--color-text-primary); font-weight: 500; }
+.hist-arrow { color: var(--color-text-secondary); font-size: 10px; }
+.hist-w.new { color: #3B6D11; }
+
+.empty-hist { padding: 20px 14px; text-align: center; font-size: 12px; color: var(--color-text-secondary); }
+
+.modal-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 100; display: none; }
+.modal { background: var(--color-background-primary); border-radius: var(--border-radius-lg); padding: 20px; width: 280px; border: 0.5px solid var(--color-border-tertiary); }
+.modal h3 { font-size: 15px; font-weight: 500; margin-bottom: 12px; }
+.modal p { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 16px; }
+.modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
+.modal-btns button { padding: 7px 16px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; }
+.btn-cancel { border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-primary); }
+.btn-confirm { border: none; background: var(--color-text-primary); color: var(--color-background-primary); }
+
+.wrapper { position: relative; min-height: 600px; }
+</style>
+
+<div class="wrapper" id="app">
+<div class="app" id="mainApp">
+  <div class="header">
+    <h1>GYM split</h1>
+    <p id="todayDate"></p>
+  </div>
+  <div class="day-tabs" id="dayTabs"></div>
+  <div class="session-bar">
+    <div class="session-info">Última sessão: <span id="lastSession">—</span></div>
+    <button class="log-btn" onclick="logSession()">Registar sessão</button>
+  </div>
+  <div id="exerciseList"></div>
+  <div class="history-section">
+    <div class="history-title">Histórico de cargas</div>
+    <div id="historyList"></div>
+  </div>
+</div>
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3>Registar sessão?</h3>
+    <p>Confirma que terminaste o treino de hoje. As cargas actuais ficam guardadas no histórico.</p>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-confirm" onclick="confirmLog()">Confirmar</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const DAYS = [
+  {
+    id: 'push', label: 'Dia 1 — Push',
+    groups: [
+      { name: 'Peito', exercises: [
+        { id: 'vcp', name: 'Vertical Machine Chest Press', weight: 41, step: 1 },
+        { id: 'ism', name: 'Incline Smith Machine', weight: 15, step: 1 },
+        { id: 'ped', name: 'Pec Deck', weight: 30, step: 1 },
+      ]},
+      { name: 'Ombros', exercises: [
+        { id: 'shp', name: 'Shoulder Press', weight: 17.5, step: 0.5 },
+        { id: 'clr', name: 'Cable Lateral Raise', weight: 14, step: 1 },
+        { id: 'swp', name: 'Shoulder com peso', weight: 7.5, step: 0.5 },
+      ]},
+      { name: 'Tríceps', exercises: [
+        { id: 'tpn', name: 'Triceps Pressdown (neutral)', weight: 45, step: 1 },
+        { id: 'oce', name: 'Overhead Cable Extensions (V)', weight: 35, step: 1 },
+        { id: 'tex', name: 'Tricep Extension (corda)', weight: 41, step: 1 },
+      ]},
+    ]
+  },
+  {
+    id: 'pull', label: 'Dia 2 — Pull',
+    groups: [
+      { name: 'Costas', exercises: [
+        { id: 'wlp', name: 'Wide-grip Lat Pulldowns', weight: 36, step: 1 },
+        { id: 'prn', name: 'Pulley Row (narrow)', weight: 50, step: 1 },
+        { id: 'rpd', name: 'Reverse Peck Deck', weight: 32, step: 1 },
+        { id: 'pbw', name: 'Para Baixo Wi (wide)', weight: 22.5, step: 0.5 },
+      ]},
+      { name: 'Bíceps', exercises: [
+        { id: 'fbc', name: 'Face Away Bayesian Curl', weight: 18, step: 1 },
+        { id: 'prc', name: 'Preacher Curls', weight: 10, step: 0.5 },
+        { id: 'rhc', name: 'Rope Hammer Curls', weight: 36, step: 1 },
+        { id: 'wce', name: 'Wrist Curls/Extension', weight: 2.5, step: 0.5 },
+      ]},
+    ]
+  },
+  {
+    id: 'legs', label: 'Dia 3 — Legs',
+    groups: [
+      { name: 'Pernas', exercises: [
+        { id: 'itr', name: 'Inner Thigh', weight: 50, step: 1 },
+        { id: 'otr', name: 'Outer Thigh', weight: 55, step: 1 },
+        { id: 'lgp', name: 'Leg Press', weight: 73, step: 2.5 },
+        { id: 'lge', name: 'Leg Extensions', weight: 55, step: 1 },
+        { id: 'lgc', name: 'Leg Curls', weight: 64, step: 1 },
+        { id: 'cla', name: 'Calve Raises', weight: 80, step: 2.5 },
+        { id: 'gld', name: 'Glute Drive', weight: 0, step: 5 },
+      ]},
+      { name: 'Core', exercises: [
+        { id: 'plk', name: 'Plank', weight: 0, step: 0 },
+        { id: 'ris', name: 'Raise', weight: 0, step: 0 },
+        { id: 'cbc', name: 'Cable Crunch', weight: 55, step: 1 },
+        { id: 'pwc', name: 'Plate-weighted Crunch', weight: 0, step: 2.5 },
+      ]},
+    ]
+  }
+];
+
+let currentDay = 0;
+let done = {};
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('gymState');
+    if (s) {
+      const parsed = JSON.parse(s);
+      DAYS.forEach(day => {
+        day.groups.forEach(g => {
+          g.exercises.forEach(ex => {
+            if (parsed.weights && parsed.weights[ex.id] !== undefined) {
+              ex.weight = parsed.weights[ex.id];
+            }
+          });
+        });
+      });
+      return parsed;
+    }
+  } catch(e) {}
+  return { sessions: [], weights: {} };
+}
+
+function saveState() {
+  const weights = {};
+  DAYS.forEach(day => day.groups.forEach(g => g.exercises.forEach(ex => { weights[ex.id] = ex.weight; })));
+  const existing = loadState();
+  existing.weights = weights;
+  try { localStorage.setItem('gymState', JSON.stringify(existing)); } catch(e) {}
+  return existing;
+}
+
+let state = loadState();
+
+function formatDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit', year: '2-digit' });
+}
+
+function renderTabs() {
+  const t = document.getElementById('dayTabs');
+  t.innerHTML = DAYS.map((d, i) => `<button class="day-btn${i===currentDay?' active':''}" onclick="switchDay(${i})">${d.label}</button>`).join('');
+}
+
+function getHistory(exId) {
+  const sessions = state.sessions || [];
+  return sessions.filter(s => s.day === DAYS[currentDay].id && s.exercises && s.exercises[exId] !== undefined)
+    .sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 2);
+}
+
+function renderExercises() {
+  const day = DAYS[currentDay];
+  const el = document.getElementById('exerciseList');
+  let html = '';
+  day.groups.forEach(g => {
+    html += `<div class="muscle-group"><div class="group-header">${g.name}</div>`;
+    g.exercises.forEach(ex => {
+      const hist = getHistory(ex.id);
+      const prev = hist.length > 0 ? hist[0].exercises[ex.id] : null;
+      let changeHtml = '';
+      if (prev !== null && prev !== undefined && ex.step > 0) {
+        const diff = ex.weight - prev;
+        if (diff > 0) changeHtml = `<span class="change up">▲${diff}kg</span>`;
+        else if (diff < 0) changeHtml = `<span class="change down">▼${Math.abs(diff)}kg</span>`;
+        else changeHtml = `<span class="change same">=</span>`;
+      }
+      const prevText = prev !== null && prev !== undefined ? `Anterior: ${prev}kg${changeHtml}` : 'Sem histórico';
+      const isDone = done[ex.id];
+      const checkSvg = isDone
+        ? `<svg class="done-check" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+        : `<svg class="done-check" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="var(--color-border-secondary)" stroke-width="1"/></svg>`;
+
+      const isBodyweight = ex.step === 0;
+      const weightSection = isBodyweight
+        ? `<div class="weight-display" style="color:var(--color-text-secondary);font-size:11px">corpo</div>`
+        : `<div class="weight-ctrl">
+            <button class="w-btn" onclick="adjWeight('${ex.id}', -1)">−</button>
+            <div><div class="weight-display">${ex.weight % 1 === 0 ? ex.weight : ex.weight.toFixed(1)}</div><div class="weight-unit" style="text-align:center">kg</div></div>
+            <button class="w-btn" onclick="adjWeight('${ex.id}', 1)">+</button>
+          </div>`;
+
+      html += `<div class="exercise-row">
+        <button class="done-btn${isDone?' done':''}" onclick="toggleDone('${ex.id}')">${checkSvg}</button>
+        <div class="exercise-info">
+          <div class="exercise-name">${ex.name}</div>
+          <div class="exercise-prev">${prevText}</div>
+        </div>
+        ${weightSection}
+      </div>`;
+    });
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function renderHistory() {
+  const hl = document.getElementById('historyList');
+  const sessions = (state.sessions || []).filter(s => s.day === DAYS[currentDay].id).sort((a,b) => new Date(b.date)-new Date(a.date)).slice(0, 5);
+  if (!sessions.length) {
+    hl.innerHTML = '<div class="empty-hist">Sem sessões registadas</div>';
+    return;
+  }
+  const day = DAYS[currentDay];
+  const allEx = [];
+  day.groups.forEach(g => g.exercises.forEach(ex => allEx.push(ex)));
+
+  let html = '';
+  sessions.forEach((sess, si) => {
+    const prev = sessions[si + 1];
+    allEx.forEach(ex => {
+      if (sess.exercises && sess.exercises[ex.id] !== undefined && ex.step > 0) {
+        const cur = sess.exercises[ex.id];
+        const prevW = prev && prev.exercises && prev.exercises[ex.id] !== undefined ? prev.exercises[ex.id] : null;
+        const isNew = prevW !== null && cur > prevW;
+        html += `<div class="hist-row">
+          <span class="hist-name">${ex.name}</span>
+          <div class="hist-weights">
+            ${prevW !== null ? `<span class="hist-w" style="color:var(--color-text-secondary)">${prevW}kg</span><span class="hist-arrow">→</span>` : ''}
+            <span class="hist-w${isNew?' new':''}">${cur}kg</span>
+          </div>
+        </div>`;
+      }
+    });
+  });
+  hl.innerHTML = html || '<div class="empty-hist">Sem dados</div>';
+}
+
+function renderLastSession() {
+  const sessions = (state.sessions || []).filter(s => s.day === DAYS[currentDay].id);
+  const last = sessions.sort((a,b) => new Date(b.date)-new Date(a.date))[0];
+  document.getElementById('lastSession').textContent = last ? formatDate(last.date) : '—';
+}
+
+function render() {
+  renderTabs();
+  renderExercises();
+  renderHistory();
+  renderLastSession();
+}
+
+function switchDay(i) {
+  currentDay = i;
+  done = {};
+  render();
+}
+
+function getExById(id) {
+  for (const day of DAYS) for (const g of day.groups) for (const ex of g.exercises) if (ex.id === id) return ex;
+  return null;
+}
+
+function adjWeight(id, dir) {
+  const ex = getExById(id);
+  if (!ex || ex.step === 0) return;
+  ex.weight = Math.max(0, parseFloat((ex.weight + dir * ex.step).toFixed(2)));
+  saveState();
+  render();
+}
+
+function toggleDone(id) {
+  done[id] = !done[id];
+  render();
+}
+
+function logSession() {
+  document.getElementById('modalOverlay').style.display = 'flex';
+}
+function closeModal() {
+  document.getElementById('modalOverlay').style.display = 'none';
+}
+function confirmLog() {
+  closeModal();
+  const day = DAYS[currentDay];
+  const exercises = {};
+  day.groups.forEach(g => g.exercises.forEach(ex => { exercises[ex.id] = ex.weight; }));
+  const session = { date: new Date().toISOString(), day: day.id, exercises };
+  if (!state.sessions) state.sessions = [];
+  state.sessions.push(session);
+  try { localStorage.setItem('gymState', JSON.stringify(state)); } catch(e) {}
+  done = {};
+  render();
+}
+
+document.getElementById('todayDate').textContent = new Date().toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' });
+render();
+</script>
